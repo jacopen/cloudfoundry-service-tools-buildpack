@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+build=$1
+cache=$2
+mkdir -p ${cache}
+
+bp_dir=`dirname ${0}`
+cache_target=${cache}/tools.tgz
+build_target=${build}
+target=/app/.local
+
+if [ ! -f ${cache_target} ]; then
+  mkdir -p ${target}/bin
+
+  # download mysql
+  echo "Downloading mysql-client..."
+  curl -s http://str.cloudn-service.com/files.udcp.info/buildpacks/mysql > ${target}/bin/mysql
+  chmod +x ${target}/bin/mysql
+
+  tar czf ${cache_target} -C ${target} .
+fi
+
+mkdir -p ${build_target}
+tar xzf ${cache_target} -C ${build_target}
+
+cp ${bp_dir}/connect ${build_target}/bin/
+chmod +x ${build_target}/bin/connect
+chmod +x ${build_target}/bin/mysql
